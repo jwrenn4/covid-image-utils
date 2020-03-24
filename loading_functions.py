@@ -31,8 +31,6 @@ def convert_and_save(img_loc, save_dir, heights, widths, num_combos = 10):
 
 def load_images_for_training(image_dir, metadata_file):
     image_files = os.listdir(image_dir)
-    print(image_files)
-    print(len(image_files))
     df = pd.read_csv(metadata_file)[['finding', 'filename']]
 
     image_files = [
@@ -51,4 +49,4 @@ def load_images_for_training(image_dir, metadata_file):
         assert sub_df.shape[0] == 1
         labels.append(sub_df['finding'].iloc[0])
 
-    return images, pd.Series(np.asarray(labels)).apply(lambda x : x == 'COVID-19').values.astype(int)
+    return images/images.max(), pd.Series(np.asarray(labels)).apply(lambda x : x == 'COVID-19').values.astype(int)
