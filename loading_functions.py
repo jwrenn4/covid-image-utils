@@ -41,6 +41,7 @@ def load_images_for_training(image_dir, metadata_file):
     for i in range(len(images)):
         if len(images[i].shape) > 2:
             images[i] = images[i][:,:,0]
+        images[i] = images[i] / images[i].max()
     images = np.asarray(images)
 
     labels = []
@@ -49,4 +50,4 @@ def load_images_for_training(image_dir, metadata_file):
         assert sub_df.shape[0] == 1
         labels.append(sub_df['finding'].iloc[0])
 
-    return images/images.max(), pd.Series(np.asarray(labels)).apply(lambda x : x == 'COVID-19').values.astype(int)
+    return images, pd.Series(np.asarray(labels)).apply(lambda x : x == 'COVID-19').values.astype(int)
