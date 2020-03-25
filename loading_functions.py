@@ -36,16 +36,11 @@ def load_images_for_training(image_dir, metadata_file):
     image_files = [
         f for f in image_files if '_'.join(f.split('_')[1:]) in df.filename.tolist()
     ]
-    images = []
-    labels = []
-    for img in tqdm(image_files):
+    for img in image_files:
         img_arr = np.asarray(load_image(os.path.join(image_dir, img)))
         if len(img_arr.shape) > 2:
             img_arr = img_arr[:,:,0]
         img_arr = img_arr / img_arr.max()
         sub_df = df[df.filename == '_'.join(img.split('_')[1:])]
-
-        images.append(img_arr)
-        labels.append(sub_df['finding'].iloc[0])
-    return np.asarray(images), pd.Series(np.asarray(labels)).apply(lambda x : x == 'COVID-19').values.astype(int)
-    
+        label = 1 if sub_df['finding'].iloc[0] == 'COVID-19' else 0
+        yield img_arr, label
