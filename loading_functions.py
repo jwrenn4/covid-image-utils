@@ -13,12 +13,11 @@ def get_image_sizes(img_dir):
     ]
     return np.unique([arr.shape[0] for arr in arrs]), np.unique([arr.shape[1] for arr in arrs])
 
-def convert_image_size(image, heights, widths, num_combos = 10):
-    average_size = (int(heights.mean()), int(widths.mean()))
+def convert_image_size(image, heights, widths, num_combos = 10, final_size = (64, 64)):
     selected_heights = np.random.choice(heights, num_combos)
     selected_widths = np.random.choice(widths, num_combos)
     converted_images = [
-        image.resize((h, w)).resize(average_size) for h in tqdm(selected_heights) for w in selected_widths
+        image.resize((h, w)).resize(final_size) for h in tqdm(selected_heights) for w in selected_widths
     ]
     return converted_images
 
@@ -40,7 +39,7 @@ def load_images_for_training(image_dir, metadata_file):
         img_arr = np.asarray(load_image(os.path.join(image_dir, img)))
         if len(img_arr.shape) > 2:
             img_arr = img_arr[:,:,0]
-        img_arr = img_arr / img_arr.max()
+        img_arr = (img_arr / img_arr.max()).reshape(img_arr.shape[0], img_arr.shape[1], 1)
         sub_df = df[df.filename == '_'.join(img.split('_')[1:])]
         label = 1 if sub_df['finding'].iloc[0] == 'COVID-19' else 0
         yield img_arr, label
