@@ -13,12 +13,11 @@ def get_image_sizes(img_dir):
     ]
     return np.unique([arr.shape[0] for arr in arrs]), np.unique([arr.shape[1] for arr in arrs])
 
-def convert_image_size(image, heights, widths, num_combos = 10):
-    average_size = (int(heights.mean()), int(widths.mean()))
+def convert_image_size(image, heights, widths, num_combos = 10, final_size = (64, 64)):
     selected_heights = np.random.choice(heights, num_combos)
     selected_widths = np.random.choice(widths, num_combos)
     converted_images = [
-        image.resize((h, w)).resize(average_size) for h in tqdm(selected_heights) for w in selected_widths
+        image.resize((h, w)).resize(final_size) for h in tqdm(selected_heights) for w in selected_widths
     ]
     return converted_images
 
