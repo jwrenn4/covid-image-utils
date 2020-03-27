@@ -25,6 +25,8 @@ def train_model(train_x, train_y):
     x = tf.keras.layers.Dropout(rate = 0.2)(x)
     x = tf.keras.layers.MaxPool2D()(x)
     x = tf.keras.layers.Flatten()(x)
+    x = tf.keras.layers.Dense(32, activation = 'relu')(x)
+    x = tf.keras.layers.Dense(32, activation = 'relu')(x)
     output_layer = tf.keras.layers.Dense(1, activation = 'sigmoid')(x)
     model = tf.keras.models.Model(inputs = [input_layer], outputs = [output_layer])
     model.compile(loss = 'binary_crossentropy', metrics = ['accuracy'], optimizer = 'adam')
