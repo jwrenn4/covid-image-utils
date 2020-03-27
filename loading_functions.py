@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 import skimage as sk
+import skimage.transform
+import skimage.util
 import os
 
 load_image = lambda filepath : Image.open(filepath)
@@ -27,18 +29,18 @@ def convert_and_save(img_loc, save_dir, heights, widths, num_combos = 10):
     image = load_image(img_loc)
     converted_images = convert_image_size(image, heights, widths, num_combos)
     for i in range(len(converted_images)):
-        random_degree_rotation = (np.random.random() - 0.5) * 50 # between -25 and 25 degrees
         to_rotate = np.random.random() > 0.5
         to_noise = np.random.random() > 0.5
         to_flip = np.random.random() > 0.5
         img = np.asarray(converted_images[i])
         if to_rotate:
+            random_degree_rotation = (np.random.random() - 0.5) * 50
             img = sk.transform.rotate(img, random_degree_rotation)
         if to_noise:
             img = sk.util.random_noise(img)
         if to_flip:
             img = img[:, ::-1]
-        img = Image.fromarray(img)
+        img = Image.fromarray((img * 255).astype(np.uint8))
         img.save(os.path.join(save_dir, f'{i}_{base_fn}'))
 
 def load_images_for_training(image_dir, metadata_file, num_training = 0.5):
