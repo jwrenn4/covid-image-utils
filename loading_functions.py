@@ -43,13 +43,13 @@ def convert_and_save(img_loc, save_dir, heights, widths, num_combos = 10):
         img = Image.fromarray((img * 255).astype(np.uint8))
         img.save(os.path.join(save_dir, f'{i}_{base_fn}'))
 
-def load_images_for_training(image_dir, metadata_file, num_training = 0.5):
+def load_images_for_training(image_dir, metadata_file, num_training = 0.8):
     image_files = os.listdir(image_dir)
     df = pd.read_csv(metadata_file)[['finding','filename']]
     image_data = {}
     
     # extract data in dictionary to keep file names separate
-    for fn in tqdm(df.filename.unique(), desc = 'Aggregation:'):
+    for fn in tqdm(df.filename.unique(), desc = 'Aggregation'):
         this_image_data = {
             'images' : [],
             'labels' : []
@@ -72,6 +72,14 @@ def load_images_for_training(image_dir, metadata_file, num_training = 0.5):
         num_training = int(len(list(image_data.keys()))*num_training)
     train_keys = np.random.choice(list(image_data.keys()), num_training, replace = False)
     test_keys = [k for k in image_data.keys() if k not in train_keys]
+    
+    #balance out the classes in the training data
+    positive_training = [k for k in train_keys if image_data[k]['labels'][0] == 1]
+    negative_training = [k for k in train_keys if image_data[k]['labels'][0] == 0]
+    while len(negative_training) < len(positive_training):
+        negative_training.append(np.random.choice(negative_training))
+    train_keys = positive_training + negative_training
+
     x_train, x_test, y_train, y_test = [], [], [], []
     for k in tqdm(train_keys, desc = 'Creating Training'):
         x_train.extend(image_data[k]['images'])
